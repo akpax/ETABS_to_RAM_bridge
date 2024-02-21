@@ -4,7 +4,7 @@ import clr
 
 
 ################################# AKP variables #############################
-ETABS_dll_path = R"C:\Program Files\Computers and Structures\ETABS 21\ETABSv1.dll"
+ETABS_dll_path = R"C:\Program Files\Computers and Structures\ETABS 20\ETABSv1.dll"
 ETABS_model_folder_path = R"test_models\ETABS_gravity"
 ETABS_model_file_path = R"test_models\ETABS_gravity\2023-08-29_Gravity Model.EDB"
 
@@ -33,10 +33,10 @@ AttachToInstance = False
 # set the following flag to True to manually specify the path to ETABS.exe
 # this allows for a connection to a version of ETABS other than the latest installation
 # otherwise the latest installed version of ETABS will be launched
-SpecifyPath = False
+SpecifyPath = True
 
 # if the above flag is set to True, specify the path to ETABS below
-ProgramPath = R"C:\Program Files\Computers and Structures\ETABS 21\ETABS.exe"
+ProgramPath = R"C:\Program Files\Computers and Structures\ETABS 20\ETABS.exe"
 
 # full path to the model
 # set it to the desired path of your model
