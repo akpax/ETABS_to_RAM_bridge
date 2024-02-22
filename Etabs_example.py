@@ -33,7 +33,7 @@ AttachToInstance = False
 # set the following flag to True to manually specify the path to ETABS.exe
 # this allows for a connection to a version of ETABS other than the latest installation
 # otherwise the latest installed version of ETABS will be launched
-SpecifyPath = True
+SpecifyPath = False
 
 # if the above flag is set to True, specify the path to ETABS below
 ProgramPath = R"C:\Program Files\Computers and Structures\ETABS 20\ETABS.exe"
