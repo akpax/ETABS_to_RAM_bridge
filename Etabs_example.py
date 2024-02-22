@@ -5,8 +5,8 @@ import clr
 
 ################################# AKP variables #############################
 ETABS_dll_path = R"C:\Program Files\Computers and Structures\ETABS 20\ETABSv1.dll"
-ETABS_model_folder_path = R"test_models\ETABS_gravity"
-ETABS_model_file_path = R"test_models\ETABS_gravity\2023-08-29_Gravity Model.EDB"
+ETABS_model_folder_path = R"test_models\ETABS_test"
+ETABS_model_file_path = ETABS_model_folder_path + os.sep + "example.EDB"
 
 
 ###########################################################################
@@ -148,6 +148,7 @@ FrameName3 = " "
     -4, 0, 10, 0, 0, 10, FrameName3, "R1", "3", "Global"
 )
 
+print(FrameName1)
 # assign point object restraint at base
 PointObj = cPointObj(SapModel.PointObj)
 PointName1 = " "
@@ -301,7 +302,16 @@ for i in range(0, 7):
             R3,
         )
         ProgramResult[i] = U1[0]
+        print("\n----------U1------------------")
+        print(U1[0])
+        print(type(U1))
+        print("----------LC------------------")
+        print(ACase)
+        print(type(ACase))
+        print(ACase[0])
 
+
+print(f" Frame name 1: {FrameName1}")
 # close the program
 ret = myETABSObject.ApplicationExit(False)
 SapModel = None
