@@ -13,6 +13,13 @@ open_ETABS_file(SapModel, ETABS_model_file_path)
 load_cases = find_load_cases_by_type(SapModel)
 print(load_cases)
 
+frames_df = get_all_frame_elements(SapModel)
+cols_df = find_columns(frames_df)
+print(len(cols_df))
+# set ETABS units to same foramt as RAM API
+lb_in_F = 1
+set_units(SapModel, unit_type=lb_in_F)
+
 results = analyze_ETABS(SapModel)
 # close ETABS application
 exit_ETABS(ETABSObject)
