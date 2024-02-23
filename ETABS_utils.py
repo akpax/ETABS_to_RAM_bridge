@@ -1,36 +1,41 @@
-import os
-import sys
+from pathlib import Path
+import json
 import clr
+from validation_utils import prompt_for_dll_path_until_valid, ensure_config_exists
 from System import String, Array
 
 
-# # ETABS_dll_path = input("Please input Path to ETABS .dll")
-# clr.AddReference(ETABS_dll_path)
-# from ETABSv1 import *
+ensure_config_exists()
+ETABS_dll_path = prompt_for_dll_path_until_valid()
 
 
-from enum import Enum  # not sure if necessary
-from System.Runtime.InteropServices import Marshal  # not sure if necessary
+clr.AddReference(ETABS_dll_path)
+from ETABSv1 import *
 
 
-import pandas as pd
-from pathlib import Path
+# from enum import Enum  # not sure if necessary
+# from System.Runtime.InteropServices import Marshal  # not sure if necessary
 
 
-def initialize_ETABS_library(path):
-    global ETABSv1
-    clr.AddReference(path)
-    import ETABSv1
+# import pandas as pd
 
 
+# # TODO - find work arond fopr making ETABs global
+# # def initialize_ETABS_library(path):
+# #     global ETABSv1
+# #     clr.AddReference(path)
+# #     import ETABSv1
+
+
+# # TODO - figure out how to launch and make exe_path are optional
 def initalize_SapModel(ETABS_exe_path):
     # create API helper object
-    helper = ETABSv1.cHelper(ETABSv1.Helper())
+    helper = cHelper(Helper())
     # create instance of ETABs object from specified path
-    myETABSObject = ETABSv1.cOAPI(helper.CreateObject(ETABS_exe_path))
+    myETABSObject = cOAPI(helper.CreateObject(ETABS_exe_path))
 
     # start ETABS application
     myETABSObject.ApplicationStart()
 
     # create SapModel object
-    return ETABSv1.cSapModel(myETABSObject.SapModel)
+    return cSapModel(myETABSObject.SapModel)
