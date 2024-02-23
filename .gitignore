@@ -1,4 +1,6 @@
-test_models
 scratch.py
 venv
 archive
+Etabs_example.py
+config.json
+__pycache__

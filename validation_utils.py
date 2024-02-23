@@ -32,6 +32,7 @@ def get_etabs_dll_path_from_config(config_path="config.json"):
         return None
 
 
+# TODO modify thsi function so it accepts a different check function asn arg and can vlaidat concept too
 def prompt_for_dll_path_until_valid():
     while True:
         ETABS_dll_path = get_etabs_dll_path_from_config()
