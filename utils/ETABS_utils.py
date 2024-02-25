@@ -2,7 +2,7 @@ from pathlib import Path
 import json
 import pandas as pd
 import clr
-from validation_utils import prompt_for_dll_path_until_valid, ensure_config_exists
+from .validation_utils import prompt_for_dll_path_until_valid, ensure_config_exists
 from System import String, Array
 
 pd.options.mode.copy_on_write = True  # ensures a copy is returned rather than a view
@@ -34,6 +34,8 @@ def open_ETABS_file(SapModel, model_path):
     ret = File.OpenFile(model_path)
     if ret == 0:
         return True
+    else:
+        return None
 
 
 def find_load_cases_by_type(SapModel, LC_type=1):
@@ -222,5 +224,9 @@ def find_columns(df):
     return df[(df["Point1X"] == df["Point2X"]) & (df["Point1Y"] == df["Point2Y"])]
 
 
-def exit_ETABS(myETABSObject):
+def exit_ETABS():
+    global myETABSObject, SapModel
     ret = myETABSObject.ApplicationExit(True)
+    myETABSObject = None
+    SapModel = None
+    return ret

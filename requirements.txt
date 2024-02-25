@@ -1,3 +1,4 @@
 pandas
 pythonnet
 requests
+pytest
