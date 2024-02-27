@@ -4,3 +4,5 @@ archive
 Etabs_example.py
 config.json
 __pycache__
+tkinter_example.py
+test_models

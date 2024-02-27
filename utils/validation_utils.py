@@ -1,4 +1,4 @@
-from .GUI_utils import PathSelectorGUI
+from GUI_utils import PathSelectorGUI
 import clr
 import json
 from pathlib import Path

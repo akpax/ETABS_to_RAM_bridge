@@ -1,7 +1,0 @@
-﻿Object reference not set to an instance of an object.
-   at ᭞.ᝧ(String A_0)Object reference not set to an instance of an object.
-   at ᮃ.ᜂ()
-   at ᤵ.᜜()
-   at System.Windows.Forms.FormClosingEventHandler.Invoke(Object sender, FormClosingEventArgs e)
-   at System.Windows.Forms.Form.OnFormClosing(FormClosingEventArgs e)
-   at System.Windows.Forms.Form.CheckCloseDialog(Boolean closingOnly)
