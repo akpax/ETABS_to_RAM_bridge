@@ -46,8 +46,8 @@ def check_RAM_connection():
         return False
 
 
-def start_concept_and_open_model(path):
-    concept = Concept.start_concept(headless=True)
+def start_concept_and_open_model(path, headless=True):
+    concept = Concept.start_concept(headless=headless)
     model = concept.open_file(path)
     cad_manager = model.cad_manager
     return concept, model, cad_manager

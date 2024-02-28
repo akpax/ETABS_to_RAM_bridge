@@ -11,7 +11,10 @@ from pathlib import Path
 import json
 import pandas as pd
 import clr
-from validation_utils import prompt_for_dll_path_until_valid, ensure_config_exists
+from validation_utils import (
+    prompt_for_dll_path_until_valid,
+    ensure_config_exists,
+)
 from System import String, Array
 
 pd.options.mode.copy_on_write = True  # ensures a copy is returned rather than a view
@@ -262,6 +265,11 @@ def find_max_axial(Results, frame_objs: list) -> dict:
 
 def find_columns(df):
     return df[(df["Point1X"] == df["Point2X"]) & (df["Point1Y"] == df["Point2Y"])]
+
+
+def find_levels(df):
+    # adjust so it is sorted
+    return df["StoryName"].unique().tolist()
 
 
 def exit_ETABS(myETABSObject):

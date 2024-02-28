@@ -1,5 +1,5 @@
 import pytest
-from utils.ETABS_utils import *
+from ETABS_utils import *
 import clr
 import pandas as pd
 from pathlib import Path

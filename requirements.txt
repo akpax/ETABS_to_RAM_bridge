@@ -2,3 +2,4 @@ pandas
 pythonnet
 requests
 pytest
+pillow
