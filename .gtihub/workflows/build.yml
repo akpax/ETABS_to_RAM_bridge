@@ -14,7 +14,7 @@ jobs:
         - name: Set up Python
           uses: actions/setup-python@v2
           with:
-            python-version: '3.9'
+            python-version: '3.11'
 
         - name: Install dependencies
           run: |
@@ -22,16 +22,12 @@ jobs:
             if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           shell: bash
 
-        - name: Build Executable (Windows)
-          if: startsWith(matrix.os, 'windows')
+        - name: Build Executable
           run: pyinstaller --add-data "images;images" --onefile ETABS_to_RAM_APP.py --name=ETABS_RAM_bridge.exe 
-
-        - name: Rename Executable (Windows)
-          run: Move-Item dist\ETABS_RAM_bridge.exe dist\ETABS_RAM_bridge_windows.exe
 
 
         - name: Upload Executable as Artifact
           uses: actions/upload-artifact@v2
           with:
-                name: ETABS_RAM_bridge_windows
+                name: ETABS_RAM_bridge
                 path: dist/
