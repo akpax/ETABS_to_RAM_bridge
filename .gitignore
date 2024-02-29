@@ -9,3 +9,4 @@ test_models
 build
 dist
 ETABS_RAM_bridge.exe.spec
+proj_notes.txt

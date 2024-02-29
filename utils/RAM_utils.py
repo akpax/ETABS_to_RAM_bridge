@@ -1,4 +1,5 @@
 import sys  # add RAM concept API installation to path so it can be found (it is in same location as application not in venv)
+import requests
 
 
 # TODO clean up these lines with updated validation utils

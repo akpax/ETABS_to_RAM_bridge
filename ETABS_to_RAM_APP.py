@@ -1,6 +1,7 @@
 from tkinter import Tk, Button, filedialog, font, StringVar, Listbox, Canvas, Toplevel
 from tkinter import ttk
 import json
+from utils.GUI_utils import resource_path
 from utils.ETABS_utils import *
 from utils.RAM_utils import *
 from utils.misc_utils import *
@@ -9,7 +10,8 @@ from PIL import ImageTk, Image
 
 
 path_font = "Arial 7 italic"
-arrow_image_path = R"images\arrow_medium.png"
+arrow_image_path = resource_path(R"images\arrow_medium.png")
+# arrow_image_path = "images\arrow_medium.png"
 blue_button_color_code = "#1F51FF"
 white_color_code = "#FFFFFF"
 red_button_color_code = "#D04848"

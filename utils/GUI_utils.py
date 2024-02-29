@@ -1,9 +1,11 @@
 from tkinter import Tk, Button, filedialog, font, StringVar, Listbox
 from tkinter import ttk
 import json
+import os
 from .GUI_utils import *
 from .RAM_utils import *
 from pathlib import Path
+
 
 path_font = "Arial 7 italic"
 
@@ -55,3 +57,19 @@ class PathSelectorGUI:
 
     def run(self):
         self.win.mainloop()
+
+
+def resource_path(relative_path: str) -> str:
+    """Get absolute path to resource, works for dev and for PyInstaller."""
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        # Determine the absolute path to the directory containing the main script.
+        # This assumes that the main script is located in the project root.
+        main_dir = os.path.dirname(os.path.abspath(sys.modules["__main__"].__file__))
+        print(sys.modules["__main__"].__file__)
+        print(main_dir)
+        base_path = main_dir
+
+    return os.path.join(base_path, relative_path)
