@@ -17,7 +17,6 @@ def find_rotation_matrix(src_vec, dest_vec):
     # Compute the cosine and sine of the angle between src_vec and dest_vec
     cos_theta = np.dot(a, b)
     sin_theta = np.linalg.det(np.array([a, b]))
-    print(sin_theta)
 
     # Construct the rotation matrix
     rotation_matrix = np.around(
@@ -51,8 +50,6 @@ def calibrate(src_pt1: list, src_pt2: list, out_pt1: list, out_pt2) -> tuple:
     rotation_matrix = find_rotation_matrix(delta_vec_src, delta_vec_out)
     src_pt1_rot = matrix_rotation(*src_pt1, rotation_matrix)
     delta_translation = np.array(delta_vec(*out_pt1, *src_pt1_rot))
-    ic(delta_translation)
-    ic(rotation_matrix)
     return rotation_matrix, delta_translation
 
 
@@ -61,4 +58,7 @@ def convert_point_to_new_coord_system(x, y, rotation_matrix, delta_translation):
 
 
 if __name__ == "__main__":
-    pass
+    df = pd.read_csv(
+        R"C:\Users\austin.paxton\OneDrive - Mar Structural Design\Documents\Python Projects\ETABs_to_RAM_bridge\validation_data\frames_df_results.csv"
+    )
+    print(df.head())

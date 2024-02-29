@@ -1,8 +1,9 @@
-from tkinter import Tk, Button, filedialog, font, StringVar, Listbox, Canvas, N, S, E, W
+from tkinter import Tk, Button, filedialog, font, StringVar, Listbox, Canvas, Toplevel
 from tkinter import ttk
 import json
 from utils.ETABS_utils import *
 from utils.RAM_utils import *
+from utils.misc_utils import *
 from pathlib import Path
 from PIL import ImageTk, Image
 
@@ -20,6 +21,7 @@ class ETABS_to_RAM_APP:
         self.ETABS_load_cases = []
         self.ETABS_levels = []
         self.ETABS_model_path = None
+        self.ETABS_results = None
         self.RAM_model_path = None
         self.RAM_load_layers = []
 
@@ -102,6 +104,7 @@ class ETABS_to_RAM_APP:
             listvariable=self.load_case_var,
             selectmode="extended",
             height=10,
+            exportselection=0,
         )
         self.l_box.grid(row=3, column=1, padx=(0, 10))
         ttk.Label(
@@ -156,6 +159,35 @@ class ETABS_to_RAM_APP:
         Button(self.RAM_frame, text="Add", command=self.add_load_layer).grid(
             row=3, column=1
         )
+        ttk.Separator(self.RAM_frame, orient="horizontal").grid(
+            row=4, column=0, columnspan=2, sticky="ew"
+        )
+
+        self.transfer_loads_button = Button(
+            self.RAM_frame,
+            text="Transfer Loads",
+            command=self.transfer_loads,
+            bg=blue_button_color_code,
+            fg=white_color_code,
+            state="disabled",
+        )
+        self.transfer_loads_button.grid(
+            row=5,
+            column=0,
+            columnspan=2,
+            rowspan=2,
+            padx=20,
+            pady=(10, 5),
+            sticky="nsew",
+        )
+
+        Button(
+            self.RAM_frame,
+            text="Calibrate",
+            command=self.launch_calibrate_window,
+            bg=red_button_color_code,
+            fg=white_color_code,
+        ).grid(row=8, column=0, columnspan=2, padx=(20, 20), pady=(5, 10), sticky="ew")
 
         ### styling ####
         # Colorize alternating lines of the listbox
@@ -185,6 +217,7 @@ class ETABS_to_RAM_APP:
         self.progress_bar.grid(row=3, column=2, columnspan=3)
         self.progress_bar.start()
         root.update_idletasks()
+        ###### ETABS data extraction/object creation ######
         self.SapModel, self.ETABSObject = initalize_SapModel()
         open_ETABS_file(self.SapModel, self.ETABS_model_path)
         print("successfully opened ETABS file")
@@ -202,57 +235,123 @@ class ETABS_to_RAM_APP:
         lb_in_F = 1
         set_units(self.SapModel, unit_enum=lb_in_F)
 
-        # self.ETABS_results = run_ETABS_analysis(self.SapModel)
-        # print(f"ETABS analysis complete")
+        self.ETABS_results = run_ETABS_analysis(self.SapModel)
+        print(f"ETABS analysis complete")
 
+        self.ETABS_setup = get_ETABS_results_setup(self.ETABS_results)
+
+        ###### RAM data extraction/object creation ######
         self.concept, self.model, self.cad_manager = start_concept_and_open_model(
             self.RAM_model_path
         )
         set_units_to_US(self.model)
         self.RAM_load_layers = get_all_loading_layers(self.cad_manager)
+        print(self.RAM_load_layers)
         self.combo_box_load_layer["values"] = self.RAM_load_layers
 
         self.progress_bar.stop()
         self.notebook.tab(1, state="normal")
 
-        ttk.Separator(self.RAM_frame, orient="horizontal").grid(
-            row=4, column=0, columnspan=2, sticky="ew"
-        )
+    def launch_calibrate_window(self):
+        calibrate = Toplevel()
+        calibrate.title("Calibrate Coordinates")
+        self.coord_entry_dict = {
+            "ETABS point 1:": [],
+            "RAM point 1:": [],
+            "ETABS point 2:": [],
+            "RAM point 2:": [],
+        }
+        cols = 2
+        start_row = 1
+        start_col = 0
+        for i, row in enumerate(self.coord_entry_dict.keys()):
+            ttk.Label(calibrate, text=row).grid(
+                row=start_row + i, column=start_col, padx=(10, 0), sticky="w"
+            )
+            for col in range(cols):
+                if col == 1:
+                    padx = (0, 10)
+                else:
+                    padx = 5
+                entry = ttk.Entry(calibrate, width=8)
+                entry.grid(row=start_row + i, column=1 + col, padx=padx, pady=5)
+                self.coord_entry_dict[row].append(entry)
 
+        top_labels = ["x", "y"]
+        for i, label in enumerate(top_labels):
+            ttk.Label(calibrate, text=label).grid(row=0, column=i + 1)
+
+        # pad last column
+        last_col = calibrate.grid_slaves(column=3)
+        for col in last_col:
+            print(col)
         Button(
-            self.RAM_frame,
-            text="Transfer Loads",
-            command=self.transfer_loads,
+            calibrate,
+            text="Calibrate",
+            command=self.calibrate_ETABS_to_RAM,
             bg=blue_button_color_code,
             fg=white_color_code,
-        ).grid(
-            row=5,
-            column=0,
-            columnspan=2,
-            rowspan=2,
-            padx=20,
-            pady=(10, 5),
-            sticky=(N, S, E, W),
+        ).grid(row=5, column=0, columnspan=3, padx=10, pady=(0, 10), sticky="ew")
+
+    def calibrate_ETABS_to_RAM(self):
+        print(self.coord_entry_dict)
+        ETABS_pt1 = [
+            float(entry.get()) for entry in self.coord_entry_dict["ETABS point 1:"]
+        ]
+        ETABS_pt2 = [
+            float(entry.get()) for entry in self.coord_entry_dict["ETABS point 2:"]
+        ]
+        RAM_pt1 = [
+            float(entry.get()) for entry in self.coord_entry_dict["RAM point 1:"]
+        ]
+        RAM_pt2 = [
+            float(entry.get()) for entry in self.coord_entry_dict["RAM point 2:"]
+        ]
+        rotation_matrix, delta_translation = calibrate(
+            ETABS_pt1, ETABS_pt2, RAM_pt1, RAM_pt2
         )
 
-        Button(
-            self.RAM_frame,
-            text="Calibrate",
-            command=self.launch_calibration_window,
-            bg=red_button_color_code,
-            fg=white_color_code,
-        ).grid(row=8, column=0, columnspan=2, padx=(20, 20), pady=(5, 10), sticky="ew")
-
-    def launch_calibration_window(self):
-        pass
+        self.cols_df[["RAM_X", "RAM_Y"]] = self.cols_df.apply(
+            lambda row: pd.Series(
+                convert_point_to_new_coord_system(
+                    row["Point1X"],
+                    row["Point1Y"],
+                    rotation_matrix,
+                    delta_translation,
+                )
+            ),
+            axis=1,
+        )
+        self.transfer_loads_button["state"] = "normal"
 
     def transfer_loads(self):
         user_level_selection = self.combo_box_levels.get()
         print(f"User Level Selection: {user_level_selection}")
-        user_ETABS_load_case_selection = self.load_case_var.get()
-        print(f"User ETABS Load Case Selection: {user_ETABS_load_case_selection}")
+        user_ETABS_lc_selection = self.load_case_var.get()
+        print(f"User ETABS Load Case Selection: {user_ETABS_lc_selection}")
         user_RAM_layer_selection = self.load_layers_var.get()
         print(f" RAM load layer: {user_RAM_layer_selection}")
+
+        change_ETABS_output_case(self.ETABS_setup, user_ETABS_lc_selection)
+        P_max = find_max_axial(
+            self.ETABS_results,
+            self.cols_df[self.cols_df["StoryName"] == user_level_selection][
+                "MyNames"
+            ].to_list(),
+        )
+        df_key = f"P_max_{user_ETABS_lc_selection}"
+        self.cols_df[df_key] = self.cols_df["MyNames"].map(P_max)
+
+        add_axial_loads_to_loading_layer(
+            self.cad_manager,
+            user_RAM_layer_selection,
+            self.cols_df["RAM_X"].to_list(),
+            self.cols_df["RAM_Y"].to_list(),
+            self.cols_df[df_key].to_list(),
+        )
+
+        self.model.save_file(self.RAM_model_path)
+        # TODO  add logic for removing user available options for ETAS load case
 
     def check_enable_data_button(self, button):
         if self.ETABS_model_path is not None and self.RAM_model_path is not None:
@@ -262,16 +361,13 @@ class ETABS_to_RAM_APP:
         user_entry = self.user_defined_load_layer.get()
         if user_entry != "":
             add_force_loading_layer(self.cad_manager, user_entry)
+            self.RAM_load_layers.append(user_entry)
+            self.combo_box_load_layer["values"] = self.RAM_load_layers
             print(f"added following user entry: {user_entry}")
 
     def stylize_list_box(self, list_box, number_items):
         for i in range(0, len(self.ETABS_load_cases), 2):
             list_box.itemconfigure(i, background="#f0f0ff")
-
-
-class CalibrateWindow:
-    def __init__(self):
-        pass
 
 
 if __name__ == "__main__":

@@ -58,8 +58,13 @@ def set_units_to_US(model):
     units.set_US_API_units()
 
 
-def get_all_loading_layers(cad_manager):
-    return [str(layer.name) for layer in cad_manager.force_loading_layers]
+def get_all_loading_layers(cad_manager, omitted_layers=["Self-Dead Loading"]):
+    # omit self-dead loading because we cannot write to this layer
+    return [
+        layer.name
+        for layer in cad_manager.force_loading_layers
+        if layer.name not in omitted_layers
+    ]
 
 
 def check_loading_layer_exists(cad_manager, layer_name):
@@ -76,7 +81,7 @@ def add_force_loading_layer(cad_manager, new_layer_name):
 
 
 def add_axial_loads_to_loading_layer(cad_manager, layer_name, x, y, Fz):
-    if check_loading_layer_exists(layer_name):
+    if check_loading_layer_exists(cad_manager, layer_name):
         force_loading_layer = cad_manager.force_loading_layer(layer_name)
         force_loading_layer.add_point_loads(x, y, Fz=Fz)
 
