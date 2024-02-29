@@ -253,8 +253,8 @@ class ETABS_to_RAM_APP:
         self.notebook.tab(1, state="normal")
 
     def launch_calibrate_window(self):
-        calibrate = Toplevel()
-        calibrate.title("Calibrate Coordinates")
+        self.calibrate_win = Toplevel()
+        self.calibrate_win.title("Calibrate Coordinates")
         self.coord_entry_dict = {
             "ETABS point 1:": [],
             "RAM point 1:": [],
@@ -265,7 +265,7 @@ class ETABS_to_RAM_APP:
         start_row = 1
         start_col = 0
         for i, row in enumerate(self.coord_entry_dict.keys()):
-            ttk.Label(calibrate, text=row).grid(
+            ttk.Label(self.calibrate_win, text=row).grid(
                 row=start_row + i, column=start_col, padx=(10, 0), sticky="w"
             )
             for col in range(cols):
@@ -273,20 +273,20 @@ class ETABS_to_RAM_APP:
                     padx = (0, 10)
                 else:
                     padx = 5
-                entry = ttk.Entry(calibrate, width=8)
+                entry = ttk.Entry(self.calibrate_win, width=8)
                 entry.grid(row=start_row + i, column=1 + col, padx=padx, pady=5)
                 self.coord_entry_dict[row].append(entry)
 
         top_labels = ["x", "y"]
         for i, label in enumerate(top_labels):
-            ttk.Label(calibrate, text=label).grid(row=0, column=i + 1)
+            ttk.Label(self.calibrate_win, text=label).grid(row=0, column=i + 1)
 
         # pad last column
-        last_col = calibrate.grid_slaves(column=3)
+        last_col = self.calibrate_win.grid_slaves(column=3)
         for col in last_col:
             print(col)
         Button(
-            calibrate,
+            self.calibrate_win,
             text="Calibrate",
             command=self.calibrate_ETABS_to_RAM,
             bg=blue_button_color_code,
@@ -322,35 +322,41 @@ class ETABS_to_RAM_APP:
             ),
             axis=1,
         )
+        self.calibrate_win.destroy()
         self.transfer_loads_button["state"] = "normal"
 
     def transfer_loads(self):
         user_level_selection = self.combo_box_levels.get()
         print(f"User Level Selection: {user_level_selection}")
-        user_ETABS_lc_selection = self.load_case_var.get()
+        user_ETABS_lc_selection = self.get_selected_load_cases()
+        print(user_ETABS_lc_selection)
         print(f"User ETABS Load Case Selection: {user_ETABS_lc_selection}")
         user_RAM_layer_selection = self.load_layers_var.get()
         print(f" RAM load layer: {user_RAM_layer_selection}")
 
-        change_ETABS_output_case(self.ETABS_setup, user_ETABS_lc_selection)
-        P_max = find_max_axial(
-            self.ETABS_results,
-            self.cols_df[self.cols_df["StoryName"] == user_level_selection][
-                "MyNames"
-            ].to_list(),
-        )
-        df_key = f"P_max_{user_ETABS_lc_selection}"
-        self.cols_df[df_key] = self.cols_df["MyNames"].map(P_max)
+        for lc in user_ETABS_lc_selection:
+            change_ETABS_output_case(self.ETABS_setup, lc)
+            P_max = find_max_axial(
+                self.ETABS_results,
+                self.cols_df[self.cols_df["StoryName"] == user_level_selection][
+                    "MyNames"
+                ].to_list(),
+            )
+            print(P_max)
+            df_key = f"P_max_{user_ETABS_lc_selection}"
+            self.cols_df[df_key] = self.cols_df["MyNames"].map(P_max)
 
-        add_axial_loads_to_loading_layer(
-            self.cad_manager,
-            user_RAM_layer_selection,
-            self.cols_df["RAM_X"].to_list(),
-            self.cols_df["RAM_Y"].to_list(),
-            self.cols_df[df_key].to_list(),
-        )
+            out_df = self.cols_df[self.cols_df["StoryName"] == user_level_selection]
+            print(self.cols_df.head())
+            add_axial_loads_to_loading_layer(
+                self.cad_manager,
+                user_RAM_layer_selection,
+                out_df["RAM_X"].to_list(),
+                out_df["RAM_Y"].to_list(),
+                out_df[df_key].to_list(),
+            )
 
-        self.model.save_file(self.RAM_model_path)
+            self.model.save_file(self.RAM_model_path)
         # TODO  add logic for removing user available options for ETAS load case
 
     def check_enable_data_button(self, button):
@@ -368,6 +374,11 @@ class ETABS_to_RAM_APP:
     def stylize_list_box(self, list_box, number_items):
         for i in range(0, len(self.ETABS_load_cases), 2):
             list_box.itemconfigure(i, background="#f0f0ff")
+
+    def get_selected_load_cases(self):
+        selected_indices = self.l_box.curselection()
+        selected_load_cases = [self.l_box.get(i) for i in selected_indices]
+        return selected_load_cases
 
 
 if __name__ == "__main__":

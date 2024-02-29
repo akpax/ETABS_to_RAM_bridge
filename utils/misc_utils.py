@@ -44,6 +44,7 @@ def calibrate(src_pt1: list, src_pt2: list, out_pt1: list, out_pt2) -> tuple:
     Find rotation matrix and translation delta to convert source points (src_pt)
     to output points (out_pt)
     """
+    # TODO handle case where
     # use delta vectors bc if model is rotated we care about relative distances between points
     delta_vec_src = delta_vec(*src_pt1, *src_pt2)
     delta_vec_out = delta_vec(*out_pt1, *out_pt2)
