@@ -22,8 +22,9 @@ jobs:
           shell: bash
 
         - name: Build Executable
-          run: pyinstaller --add-data "images;images" --onefile ETABS_to_RAM_APP.py --name=ETABS_RAM_bridge.exe --paths "/utils"
+          #run: pyinstaller --add-data "images;images" --onefile ETABS_to_RAM_APP.py --name=ETABS_RAM_bridge.exe --paths "/utils"
           #run: pyinstaller --add-data "images;images" --onefile ETABS_to_RAM_APP.py --name=ETABS_RAM_bridge.exe 
+          run: pyinstaller --add-data "images;images" --onefile ETABS_to_RAM_APP.py --name=ETABS_RAM_bridge.exe --collect-all utils
 
 
         - name: Upload Executable as Artifact
