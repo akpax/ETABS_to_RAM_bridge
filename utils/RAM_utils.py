@@ -15,27 +15,6 @@ from ram_concept.force_loading_layer import ForceLoadingLayer
 from ram_concept.model import Model
 from ram_concept.force_loading_layer import ForceLoadingLayer
 
-# loading_cause_dict = {
-#     "BALANCE": "balance",
-#     "HYPERSTATIC": "hyperstatic",
-#     "LIVE_PARKING": "live_parking",
-#     "LIVE_REDUCIBLE": "live_reducible",
-#     "LIVE_ROOF": "live_roof",
-#     "LIVE_STORAGE": "live_storage",
-#     "LIVE_UNREDUCIBLE": "live_unreducible",
-#     "OTHER_DEAD": "other_dead",
-#     "OTHER_GRAVITY": "other",
-#     "SEISMIC_SERVICE": "seismic_service_",
-#     "SEISMIC_ULTIMATE": "seismic_ultimate_",
-#     "SELF_DEAD": "self_dead",
-#     "SHRINKAGE": "shrinkage",
-#     "SNOW": "snow",
-#     "STRESSING_DEAD": "stressing_dead",
-#     "TEMPERATURE": "temperature",
-#     "WIND_SERVICE": "wind_service_",
-#     "WIND_ULTIMATE": "wind_ultimate_",
-# }
-
 
 def check_RAM_connection():
     try:

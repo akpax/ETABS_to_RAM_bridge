@@ -11,7 +11,7 @@ from pathlib import Path
 import json
 import pandas as pd
 import clr
-from .validation_utils import (
+from utils.validation_utils import (
     prompt_for_dll_path_until_valid,
     ensure_config_exists,
 )

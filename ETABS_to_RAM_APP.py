@@ -279,7 +279,7 @@ class ETABS_to_RAM_APP:
                 entry.grid(row=start_row + i, column=1 + col, padx=padx, pady=5)
                 self.coord_entry_dict[row].append(entry)
 
-        top_labels = ["x", "y"]
+        top_labels = ["x [in]", "y [in]"]
         for i, label in enumerate(top_labels):
             ttk.Label(self.calibrate_win, text=label).grid(row=0, column=i + 1)
 

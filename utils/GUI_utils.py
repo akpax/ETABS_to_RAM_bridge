@@ -2,8 +2,9 @@ from tkinter import Tk, Button, filedialog, font, StringVar, Listbox
 from tkinter import ttk
 import json
 import os
-from .GUI_utils import *
-from .RAM_utils import *
+
+# from utils.RAM_utils import *
+from RAM_utils import *
 from pathlib import Path
 
 
@@ -73,3 +74,9 @@ def resource_path(relative_path: str) -> str:
         base_path = main_dir
 
     return os.path.join(base_path, relative_path)
+
+
+if __name__ == "__main__":
+    config_path = "wefwef"
+    with open(config_path, "r") as f:
+        data = json.load(f)
