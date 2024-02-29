@@ -1,8 +1,8 @@
 from tkinter import Tk, Button, filedialog, font, StringVar, Listbox
 from tkinter import ttk
 import json
-from ETABS_utils import *
-from RAM_utils import *
+from .GUI_utils import *
+from .RAM_utils import *
 from pathlib import Path
 
 path_font = "Arial 7 italic"

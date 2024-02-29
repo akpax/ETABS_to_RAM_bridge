@@ -1,4 +1,4 @@
-from ETABS_utils import *
+from utils.ETABS_utils import *
 
 
 # prompt user for key variables

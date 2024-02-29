@@ -1,8 +1,8 @@
 from tkinter import Tk, Button, filedialog, font, StringVar, Listbox, Canvas, N, S, E, W
 from tkinter import ttk
 import json
-from ETABS_utils import *
-from RAM_utils import *
+from utils.ETABS_utils import *
+from utils.RAM_utils import *
 from pathlib import Path
 from PIL import ImageTk, Image
 

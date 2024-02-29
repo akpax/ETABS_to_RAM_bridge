@@ -1,14 +1,17 @@
 import pytest
-from ETABS_utils import *
 import clr
 import pandas as pd
 from pathlib import Path
+import os
+import sys
+
+
+from ..utils.ETABS_utils import *
 
 
 @pytest.fixture(scope="class")
 def SapModel_fixture():
-    ETABS_exe_path = R"C:\Program Files\Computers and Structures\ETABS 20\ETABS.exe"
-    SapModel, myETABSObject = initalize_SapModel(ETABS_exe_path)
+    SapModel, myETABSObject = initalize_SapModel()
     yield SapModel
     exit_ETABS(myETABSObject)
 
