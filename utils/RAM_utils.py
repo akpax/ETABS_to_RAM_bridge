@@ -65,12 +65,3 @@ def calibrate_ETABS_to_RAM(ETABs_coord: list, RAM_coord: list):
     """
     location_delta = [RAM_coord[0] - ETABs_coord[0], RAM_coord[1] - ETABs_coord[1]]
     return location_delta
-
-
-if __name__ == "__main__":
-    RAM_module_path = R"C:\Program Files\Bentley\Engineering\RAM Concept CONNECT Edition\RAM Concept CONNECT Edition V8\python"
-    add_RAM_module_to_path(RAM_module_path)
-    from ram_concept.concept import Concept
-
-    print(check_RAM_connection())
-    Concept.start_concept(headless=False)

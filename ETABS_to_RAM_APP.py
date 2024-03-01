@@ -1,14 +1,27 @@
-from tkinter import Tk, Button, filedialog, font, StringVar, Listbox, Canvas, Toplevel
+from tkinter import (
+    Tk,
+    Button,
+    filedialog,
+    font,
+    StringVar,
+    Listbox,
+    Canvas,
+    Toplevel,
+    Frame,
+    Text,
+    Scrollbar,
+)
 from tkinter import ttk
 import json
+from pathlib import Path
+from PIL import ImageTk, Image
+from datetime import datetime
 from utils.ETABS_utils import *
 from utils.RAM_utils import *
 from utils.misc_utils import *
-from pathlib import Path
-from PIL import ImageTk, Image
 
 
-path_font = "Arial 7 italic"
+small_italic_font = "Arial 7 italic"
 arrow_image_path = resource_path(R"images\arrow_medium.png")
 # arrow_image_path = "images\arrow_medium.png"
 blue_button_color_code = "#1F51FF"
@@ -28,13 +41,39 @@ class ETABS_to_RAM_APP:
 
         root.title("ETABS to RAM Concept Column Load Transfer")
         root.geometry("800x600")
+
         self.notebook = ttk.Notebook(root)
         f1 = ttk.Frame(self.notebook)
         f2 = ttk.Frame(self.notebook)
         self.notebook.add(f1, text="Model Paths Config")
         self.notebook.add(f2, text="Load Transfer Hub", state="disabled")
         # self.notebook.tab("Load Transfer Hub", state="normal")
-        self.notebook.pack(expand=True, fill="both")  # pack frames into self.notebook
+        self.notebook.pack(expand=True, fill="both", padx=10, pady=(10, 0))
+
+        # Create a Frame for the logging area
+        logging_frame = ttk.Frame(root)
+        logging_frame.pack(fill="both", expand=False, padx=10, pady=(0, 10))
+
+        # Create the Text widget and Scrollbar within the logging frame
+        self.log = Text(
+            logging_frame,
+            state="disabled",
+            width=80,
+            height=6,
+            wrap="none",
+            borderwidth=2,
+            relief="sunken",
+        )
+        self.log.grid(row=0, column=0, sticky="ew", padx=(0, 0), pady=(10, 0))
+
+        scrollbar = ttk.Scrollbar(
+            logging_frame, orient="vertical", command=self.log.yview
+        )
+        scrollbar.grid(row=0, column=1, sticky="ns", pady=(10, 0))
+        self.log["yscrollcommand"] = scrollbar.set
+
+        # Configure the logging frame's column to expand, filling the space
+        logging_frame.grid_columnconfigure(0, weight=1)
 
         #######################   f1 Widgets   #######################
         # label and selection for input file
@@ -63,12 +102,16 @@ class ETABS_to_RAM_APP:
             text="Access ETABS and RAM Concept Data",
             command=self.pull_model_data,
             state="disabled",
+            bg=blue_button_color_code,
+            fg=white_color_code,
         )
-        self.pull_data_button.grid(row=2, column=0, columnspan=3, pady=20)
+        self.pull_data_button.grid(row=2, column=0, columnspan=3, pady=(20, 5))
 
-        self.progress_bar = ttk.Progressbar(
-            f1, orient="horizontal", mode="indeterminate"
-        )
+        ttk.Label(
+            f1,
+            font=small_italic_font,
+            text="Note: Data Extraction may take a while. Program may appear unresponsive",
+        ).grid(row=3, column=0, padx=(10, 0))
 
         #######################   f2 Widgets   #######################
         # __________________ETABS_frame___________________
@@ -111,7 +154,7 @@ class ETABS_to_RAM_APP:
         ttk.Label(
             self.ETABS_frame,
             text="Note: Multiple Load Cases can be selected",
-            font=path_font,
+            font=small_italic_font,
         ).grid(row=4, column=1, pady=(0, 10), padx=(0, 10))
 
         # __________________arrow image___________________
@@ -201,7 +244,7 @@ class ETABS_to_RAM_APP:
             self.ETABS_model_path = ETABS_model_path
             ETABS_model_name = Path(self.ETABS_model_path).name
             self.ETABS_model_path_label.config(
-                text=f'"{ETABS_model_name}"', font=path_font
+                text=f'"{ETABS_model_name}"', font=small_italic_font
             )
         self.check_enable_data_button(self.pull_data_button)
 
@@ -210,47 +253,55 @@ class ETABS_to_RAM_APP:
         if RAM_model_path:
             self.RAM_model_path = RAM_model_path
             RAM_model_name = Path(self.RAM_model_path).name
-            self.RAM_model_path_label.config(text=f'"{RAM_model_name}"', font=path_font)
+            self.RAM_model_path_label.config(
+                text=f'"{RAM_model_name}"', font=small_italic_font
+            )
         self.check_enable_data_button(self.pull_data_button)
 
     def pull_model_data(self):
         self.pull_data_button["state"] = "disabled"
-        self.progress_bar.grid(row=3, column=2, columnspan=3)
-        self.progress_bar.start()
-        root.update_idletasks()
         ###### ETABS data extraction/object creation ######
+
         self.SapModel, self.ETABSObject = initalize_SapModel()
+        self.writeToLog(f"Attempting to open ETABS model at: {self.ETABS_model_path}")
         open_ETABS_file(self.SapModel, self.ETABS_model_path)
-        print("successfully opened ETABS file")
+        self.writeToLog(f"Successfully opened ETABS file")
         self.ETABS_load_cases = find_load_cases_by_type(self.SapModel)
         self.load_case_var.set(self.ETABS_load_cases)
+
         # stylze list box entries
         self.stylize_list_box(self.l_box, len(self.ETABS_load_cases))
-        print(f"ETABS Load Cases: {self.ETABS_load_cases}")
         self.cols_df = find_columns(get_all_frame_elements(self.SapModel))
+        self.writeToLog("Accessed ETABS frame elements successfully")
         # populate combo box w levels
         self.ETABS_levels = find_levels(self.cols_df)
         self.combo_box_levels["values"] = self.ETABS_levels
 
-        print(self.ETABS_levels)
         lb_in_F = 1
         set_units(self.SapModel, unit_enum=lb_in_F)
-
+        self.writeToLog("Set ETABS units to [lb, in]")
+        self.writeToLog("Begining ETABS Analysis. This may take a while.")
+        self.writeToLog("Program may appear unresponsive")
+        root.update_idletasks()
         self.ETABS_results = run_ETABS_analysis(self.SapModel)
-        print(f"ETABS analysis complete")
+        self.writeToLog(f"ETABS analysis complete")
 
         self.ETABS_setup = get_ETABS_results_setup(self.ETABS_results)
 
         ###### RAM data extraction/object creation ######
+        self.writeToLog(f"Begin RAM Initialization and object creation")
         self.concept, self.model, self.cad_manager = start_concept_and_open_model(
             self.RAM_model_path
         )
+        self.writeToLog(f"Initialization Successfull")
         set_units_to_US(self.model)
+        self.writeToLog("Set RAM units to [lb, in]")
         self.RAM_load_layers = get_all_loading_layers(self.cad_manager)
-        print(self.RAM_load_layers)
+        self.writeToLog(
+            f"Detected the following RAM loading layers: {self.RAM_load_layers}"
+        )
         self.combo_box_load_layer["values"] = self.RAM_load_layers
 
-        self.progress_bar.stop()
         self.notebook.tab(1, state="normal")
 
     def launch_calibrate_window(self):
@@ -284,8 +335,7 @@ class ETABS_to_RAM_APP:
 
         # pad last column
         last_col = self.calibrate_win.grid_slaves(column=3)
-        for col in last_col:
-            print(col)
+
         Button(
             self.calibrate_win,
             text="Calibrate",
@@ -295,7 +345,7 @@ class ETABS_to_RAM_APP:
         ).grid(row=5, column=0, columnspan=3, padx=10, pady=(0, 10), sticky="ew")
 
     def calibrate_ETABS_to_RAM(self):
-        print(self.coord_entry_dict)
+
         ETABS_pt1 = [
             float(entry.get()) for entry in self.coord_entry_dict["ETABS point 1:"]
         ]
@@ -323,17 +373,20 @@ class ETABS_to_RAM_APP:
             ),
             axis=1,
         )
+        self.writeToLog(f"Rotation calibration matrix: {rotation_matrix}")
+        self.writeToLog(
+            f"Delta translation values; x: {round(delta_translation[0],2)}in, y: {round(delta_translation[1],2)}in"
+        )
         self.calibrate_win.destroy()
         self.transfer_loads_button["state"] = "normal"
 
     def transfer_loads(self):
         user_level_selection = self.combo_box_levels.get()
-        print(f"User Level Selection: {user_level_selection}")
+        self.writeToLog(f"User Level Selection: {user_level_selection}")
         user_ETABS_lc_selection = self.get_selected_load_cases()
-        print(user_ETABS_lc_selection)
-        print(f"User ETABS Load Case Selection: {user_ETABS_lc_selection}")
+        self.writeToLog(f"User ETABS Load Case Selection: {user_ETABS_lc_selection}")
         user_RAM_layer_selection = self.load_layers_var.get()
-        print(f" RAM load layer: {user_RAM_layer_selection}")
+        self.writeToLog(f" RAM load layer: {user_RAM_layer_selection}")
 
         for lc in user_ETABS_lc_selection:
             change_ETABS_output_case(self.ETABS_setup, lc)
@@ -343,12 +396,14 @@ class ETABS_to_RAM_APP:
                     "MyNames"
                 ].to_list(),
             )
-            print(P_max)
+            self.writeToLog(
+                f"ETABS LOAD CASE: {user_ETABS_lc_selection} Queried ETABS for max axial force lb"
+            )
             df_key = f"P_max_{user_ETABS_lc_selection}"
             self.cols_df[df_key] = self.cols_df["MyNames"].map(P_max)
 
             out_df = self.cols_df[self.cols_df["StoryName"] == user_level_selection]
-            print(self.cols_df.head())
+
             add_axial_loads_to_loading_layer(
                 self.cad_manager,
                 user_RAM_layer_selection,
@@ -356,8 +411,12 @@ class ETABS_to_RAM_APP:
                 out_df["RAM_Y"].to_list(),
                 out_df[df_key].to_list(),
             )
+            self.writeToLog(
+                f"ETABS LOAD CASE: {user_ETABS_lc_selection} Successfully added loads to RAM loading layer"
+            )
 
             self.model.save_file(self.RAM_model_path)
+            self.writeToLog("Successfully saved updated RAM Model")
         # TODO  add logic for removing user available options for ETAS load case
 
     def check_enable_data_button(self, button):
@@ -370,7 +429,7 @@ class ETABS_to_RAM_APP:
             add_force_loading_layer(self.cad_manager, user_entry)
             self.RAM_load_layers.append(user_entry)
             self.combo_box_load_layer["values"] = self.RAM_load_layers
-            print(f"added following user entry: {user_entry}")
+            self.writeToLog(f"Added following loading layer: {user_entry}")
 
     def stylize_list_box(self, list_box, number_items):
         for i in range(0, len(self.ETABS_load_cases), 2):
@@ -380,6 +439,26 @@ class ETABS_to_RAM_APP:
         selected_indices = self.l_box.curselection()
         selected_load_cases = [self.l_box.get(i) for i in selected_indices]
         return selected_load_cases
+
+    def writeToLog(self, msg, verbose=True):
+        msg = timestamp(msg)
+        if verbose:
+            print(msg)
+        self.log["state"] = "normal"
+        if self.log.index("end-1c") != "1.0":
+            self.log.insert("end", "\n")
+        self.log.insert("end", msg)
+        self.log["state"] = "disabled"
+        self.log.see("end")  # Auto-scroll to the bottom
+
+
+def timestamp(msg: str) -> str:
+    """
+    Appends current date to the prefix string
+    """
+    date = datetime.now()
+    time_stamp = date.strftime("%Y-%m-%d %H:%M:%S")
+    return f"{time_stamp}   {msg}"
 
 
 if __name__ == "__main__":
