@@ -13,9 +13,9 @@ The application was developed using ETABS 20; therefore, to reduce potential err
 
 This folder is typically located at:
 
-"""
+'''
 C:\Program Files\Computers and Structures\ETABS 20
-"""
+'''
 
 [provide image of .dll file]
 
@@ -35,14 +35,14 @@ The API is included with the RAM Concept install, but it is not installed into t
 
 * Change the drive and directory to the python subdirectory of your RAM Concept installation.
 Note: The RAM Concept directory is typically located at:
-"""
+'''
 C:\Program Files\Bentley\Engineering\RAM Concept CONNECT Edition\RAM Concept CONNECT Edition V8
-"""
+'''
 
 * Type the command
-"""
+'''
 setup.bat
-"""
+'''
 You can also run setup.bat by double-clicking on it, but you will not be able to see any error messages it displays.
 
 #### Checking Installation
@@ -53,9 +53,9 @@ To check your installation, you can:
 * Change the drive and directory to the Python subdirectory of your RAM Concept installation.
   
 * Type the command:
-"""
+'''
 check_install.bat
-"""
+'''
 The status of the installation will be reported to the command window.
 
 After installing, you can now select the Python folder when prompted. This folder will be validated and saved for future use.
