@@ -11,19 +11,18 @@ from pathlib import Path
 import json
 import pandas as pd
 import clr
-from utils.validation_utils import (
-    prompt_for_dll_path_until_valid,
-    ensure_config_exists,
-)
 from System import String, Array
+
+from .validation_utils import (
+    validate_and_get_path,
+    validate_ETABS_dll_path,
+    validate_ETABS_exe_path,
+)
 
 pd.options.mode.copy_on_write = True  # ensures a copy is returned rather than a view
 
-ensure_config_exists()
-ETABS_dll_path = prompt_for_dll_path_until_valid()
-# TODO update GUI for better UX and and reocnfiogure to provide config file
-ETABS_exe_path = R"C:\Program Files\Computers and Structures\ETABS 20\ETABS.exe"
-
+ETABS_dll_path = validate_and_get_path(validate_ETABS_dll_path, "ETABS .dll")
+ETABS_exe_path = validate_and_get_path(validate_ETABS_exe_path, "ETABS .exe")
 
 clr.AddReference(ETABS_dll_path)
 from ETABSv1 import *

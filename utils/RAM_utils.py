@@ -1,29 +1,19 @@
 import sys  # add RAM concept API installation to path so it can be found (it is in same location as application not in venv)
 import requests
 
+from .validation_utils import (
+    validate_and_get_path,
+    validate_RAM_path,
+)
 
-# TODO clean up these lines with updated validation utils
-def add_RAM_module_to_path(path: str):
-    sys.path.insert(1, path)
+RAM_dir_path = validate_and_get_path(validate_RAM_path, "RAM Concept Python Directory")
+sys.path.insert(1, RAM_dir_path)
 
-
-RAM_module_path = R"C:\Program Files\Bentley\Engineering\RAM Concept CONNECT Edition\RAM Concept CONNECT Edition V8\python"
-add_RAM_module_to_path(RAM_module_path)
 from ram_concept.concept import Concept
 from ram_concept.cad_manager import CadManager
 from ram_concept.force_loading_layer import ForceLoadingLayer
 from ram_concept.model import Model
 from ram_concept.force_loading_layer import ForceLoadingLayer
-
-
-def check_RAM_connection():
-    try:
-        concept = Concept.start_concept(headless=True)
-        if concept.ping() == "PONG":
-            concept.shut_down()
-            return True
-    except:
-        return False
 
 
 def start_concept_and_open_model(path, headless=True):

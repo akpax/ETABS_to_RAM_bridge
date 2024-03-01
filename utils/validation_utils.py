@@ -14,9 +14,9 @@ from tkinter import (
 from tkinter import ttk
 import os
 import System
+import sys
 
-# from utils.RAM_utils import *
-from RAM_utils import *
+
 from pathlib import Path
 
 
@@ -24,7 +24,8 @@ path_font = "Arial 7 italic"
 documentation_link = "https://github.com/akpax/ETABs_RAM_bridge"
 tk_file_types = {
     "ETABS .dll": ("DLL files", "*.dll"),
-    "RAM Concept .cpt": ("CPT files", "*.cpt"),
+    "ETABS .exe": ("EXE files", "*.exe"),
+    "RAM Concept Python Directory": None,
 }
 
 
@@ -34,10 +35,14 @@ class PathSelectorGUI:
         self.validation_func = validation_func
         self.file_type = file_type
         self.root = root
+        self.path = None
+
+        if tk_file_types[file_type] is None:
+            browse_comand = self.select_directory
+        else:
+            browse_comand = self.select_path
 
         root.title("File Selector")
-
-        self.path = None
 
         # label and selection for input file
         ttk.Label(
@@ -45,7 +50,7 @@ class PathSelectorGUI:
             text=f"Select {file_type} file:",
             font=font.nametofont("TkHeadingFont"),
         ).grid(row=0, column=0, padx=30, pady=10, sticky="w")
-        Button(root, text="Browse", command=self.select_path).grid(
+        Button(root, text="Browse", command=browse_comand).grid(
             row=0, column=2, ipadx=10, ipady=3, padx=30
         )
         self.path_label = ttk.Label(root, text="")
@@ -58,9 +63,17 @@ class PathSelectorGUI:
     def select_path(self):
         path = filedialog.askopenfilename(filetypes=[tk_file_types[self.file_type]])
         if path:
-            self.path = path
-            file_name = Path(self.path).name
-            self.path_label.config(text=f'"{file_name}"', font=path_font)
+            self.initialize_and_display_path(path)
+
+    def select_directory(self):
+        path = filedialog.askdirectory()
+        if path:
+            self.initialize_and_display_path(path)
+
+    def initialize_and_display_path(self, path):
+        self.path = path
+        file_name = Path(self.path).name
+        self.path_label.config(text=f'"{file_name}"', font=path_font)
 
     def on_submit(self):
         if self.validation_func(self.path):
@@ -98,9 +111,29 @@ def validate_ETABS_dll_path(path):
         return False
 
 
-def get_path_from_config(key, config_path="config.json"):
+def validate_ETABS_exe_path(path):
+    """
+    Opting out of validating ETABS path for now due to computational time cost
+    """
+    return True
+
+
+def validate_RAM_path(path):
     try:
-        with open(config_path, "r") as f:
+        sys.path.insert(1, path)
+        from ram_concept.concept import Concept
+
+        concept = Concept.start_concept(headless=True)
+        if concept.ping() == "PONG":
+            concept.shut_down()
+            return True
+    except:
+        return False
+
+
+def get_path_from_config(key, path):
+    try:
+        with open(path, "r") as f:
             data = json.load(f)
             return data.get(key)
     except (FileNotFoundError, json.JSONDecodeError):
@@ -132,19 +165,19 @@ def add_or_replace_json_key(key, value, path):
             return True
 
 
-def validate_and_get_path(validation_func, key, path="config.json"):
-    ensure_config_exists(path)
-    path = get_path_from_config(key, path)
+def validate_and_get_path(validation_func, key, config_path="config.json"):
+    ensure_config_exists(config_path)
+    path = get_path_from_config(key, config_path)
     if path is None or not validation_func(path):
         # GUI prompts user for path and writes to json
         root = Tk()
-        gui = PathSelectorGUI(
+        PathSelectorGUI(
             root,
             validation_func,
             key,
         )
         root.mainloop()
-        path = get_path_from_config("ETABS_dll_path", path)
+        path = get_path_from_config(key, config_path)
     return path
     # return path
 

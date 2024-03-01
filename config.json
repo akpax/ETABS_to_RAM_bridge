@@ -1,3 +1,5 @@
 {
-    "ETABS .dll": "C:/Program Files/Computers and Structures/ETABS 20/ETABSv1.dll"
+    "ETABS .dll": "C:/Program Files/Computers and Structures/ETABS 20/ETABSv1.dll",
+    "ETABS .exe": "C:/Program Files/Computers and Structures/ETABS 20/ETABS.exe",
+    "RAM Concept Python Directory": "C:/Program Files/Bentley/Engineering/RAM Concept CONNECT Edition/RAM Concept CONNECT Edition V8/python"
 }
