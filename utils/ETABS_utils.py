@@ -187,6 +187,7 @@ def run_ETABS_analysis(SapModel, frames_df):
         ret = Analyze.RunAnalysis()
         return cAnalysisResults(SapModel.Results)
     else:
+        print("no analysis req")
         return results
 
 
@@ -280,7 +281,6 @@ def exit_ETABS(myETABSObject):
     return ret
 
 
-def clean_up_ETABS():
-    global myETABSObject, SapModel
+def clean_up_ETABS(myETABSObject, SapModel):
     myETABSObject = None
     SapModel = None

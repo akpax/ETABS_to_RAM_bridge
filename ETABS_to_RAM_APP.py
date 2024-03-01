@@ -28,6 +28,23 @@ blue_button_color_code = "#1F51FF"
 white_color_code = "#FFFFFF"
 red_button_color_code = "#D04848"
 
+ETABS_analysis_types_dict = {
+    "Linear Static": 1,
+    "Nonlinear Static": 2,
+    "Modal": 3,
+    "Response Spectrum": 4,
+    "Linear History": 5,
+    "Nonlinear History": 6,
+    "Linear Dynamic": 7,
+    "Nonlinear Dynamic": 8,
+    "Moving Load": 9,
+    "Buckling": 10,
+    "Steady State": 11,
+    "Power Spectral Density": 12,
+    "Linear Static Multi Step": 13,
+    "Hyper Static": 14,
+}
+
 
 class ETABS_to_RAM_APP:
     def __init__(self, root):
@@ -36,13 +53,19 @@ class ETABS_to_RAM_APP:
         self.ETABS_levels = []
         self.ETABS_model_path = None
         self.ETABS_results = None
+        self.ETABSObject = None
+        self.SapModel = None
+
         self.RAM_model_path = None
         self.RAM_load_layers = []
+        self.concept = None
+        self.root = root
 
-        root.title("ETABS to RAM Concept Column Load Transfer")
-        root.geometry("800x600")
+        self.root.title("ETABS to RAM Concept Column Load Transfer")
+        self.root.geometry("800x600")
+        self.root.protocol("WM_DELETE_WINDOW", self.on_close)
 
-        self.notebook = ttk.Notebook(root)
+        self.notebook = ttk.Notebook(self.root)
         f1 = ttk.Frame(self.notebook)
         f2 = ttk.Frame(self.notebook)
         self.notebook.add(f1, text="Model Paths Config")
@@ -51,7 +74,7 @@ class ETABS_to_RAM_APP:
         self.notebook.pack(expand=True, fill="both", padx=10, pady=(10, 0))
 
         # Create a Frame for the logging area
-        logging_frame = ttk.Frame(root)
+        logging_frame = ttk.Frame(self.root)
         logging_frame.pack(fill="both", expand=False, padx=10, pady=(0, 10))
 
         # Create the Text widget and Scrollbar within the logging frame
@@ -110,8 +133,8 @@ class ETABS_to_RAM_APP:
         ttk.Label(
             f1,
             font=small_italic_font,
-            text="Note: Data Extraction may take a while. Program may appear unresponsive",
-        ).grid(row=3, column=0, padx=(10, 0))
+            text="Note: Data Extraction may take a while if model unlocked. Program may appear unresponsive while analysis runs.",
+        ).grid(row=3, column=0, columnspan=3, sticky="ew", padx=(10, 0))
 
         #######################   f2 Widgets   #######################
         # __________________ETABS_frame___________________
@@ -137,11 +160,32 @@ class ETABS_to_RAM_APP:
         )  # grid after to avoid chaining and assigning .grid() return of None
         self.combo_box_levels["state"] = "readonly"  # make read only
 
+        # add analysis combo box
+        ttk.Label(
+            self.ETABS_frame,
+            text="Select Analysis Type:",
+            font=font.nametofont("TkDefaultFont"),
+        ).grid(row=2, column=0, padx=(10, 0), pady=5, sticky="w")
+
+        # self.ETABS_analysis_types = list(ETABS_analysis_types_dict.keys())
+        self.analysis_type = StringVar(
+            self.ETABS_frame, list(ETABS_analysis_types_dict.keys())[0]
+        )
+        self.analysis_combo_box = ttk.Combobox(
+            self.ETABS_frame, textvariable=self.analysis_type, state="readonly"
+        )
+        self.analysis_combo_box.grid(row=2, column=1, padx=(0, 10), pady=5)
+        self.analysis_combo_box["values"] = list(ETABS_analysis_types_dict.keys())
+        self.analysis_combo_box.bind(
+            "<<ComboboxSelected>>", self.analysis_combo_box_handler
+        )
+        # self.analysis_combo_box.current(1)  # set to linear static by default
+
         ttk.Label(
             self.ETABS_frame,
             text="Select Load Cases:",
             font=font.nametofont("TkDefaultFont"),
-        ).grid(row=2, column=0, padx=(10, 0), sticky="w")
+        ).grid(row=3, column=0, padx=(10, 0), sticky="w")
         self.load_case_var = StringVar(self.ETABS_frame, value=self.ETABS_load_cases)
         self.l_box = Listbox(
             self.ETABS_frame,
@@ -150,12 +194,13 @@ class ETABS_to_RAM_APP:
             height=10,
             exportselection=0,
         )
-        self.l_box.grid(row=3, column=1, padx=(0, 10))
+        self.l_box.grid(row=4, column=1, padx=(0, 10))
+
         ttk.Label(
             self.ETABS_frame,
             text="Note: Multiple Load Cases can be selected",
             font=small_italic_font,
-        ).grid(row=4, column=1, pady=(0, 10), padx=(0, 10))
+        ).grid(row=5, column=1, pady=(0, 10), padx=(0, 10))
 
         # __________________arrow image___________________
         img_loc = (35, 35)
@@ -258,6 +303,18 @@ class ETABS_to_RAM_APP:
             )
         self.check_enable_data_button(self.pull_data_button)
 
+    def analysis_combo_box_handler(self, event):
+        """
+        Handles selection event vfro combo box and updates the available load cases lsitbox
+        """
+        selection = self.analysis_combo_box.get()
+        self.writeToLog(f"User changed Analysis type to: {selection}")
+        self.ETABS_load_cases = find_load_cases_by_type(
+            self.SapModel, load_case_type=ETABS_analysis_types_dict[selection]
+        )
+        self.refresh_list_box(self.l_box, self.load_case_var, self.ETABS_load_cases)
+        self.writeToLog(f"Updated Load Case options")
+
     def pull_model_data(self):
         self.pull_data_button["state"] = "disabled"
         ###### ETABS data extraction/object creation ######
@@ -270,7 +327,7 @@ class ETABS_to_RAM_APP:
         self.load_case_var.set(self.ETABS_load_cases)
 
         # stylze list box entries
-        self.stylize_list_box(self.l_box, len(self.ETABS_load_cases))
+        self.refresh_list_box(self.l_box, self.load_case_var, self.ETABS_load_cases)
         self.cols_df = find_columns(get_all_frame_elements(self.SapModel))
         self.writeToLog("Accessed ETABS frame elements successfully")
         # populate combo box w levels
@@ -431,8 +488,9 @@ class ETABS_to_RAM_APP:
             self.combo_box_load_layer["values"] = self.RAM_load_layers
             self.writeToLog(f"Added following loading layer: {user_entry}")
 
-    def stylize_list_box(self, list_box, number_items):
-        for i in range(0, len(self.ETABS_load_cases), 2):
+    def refresh_list_box(self, list_box, s_var, new_contents):
+        s_var.set(new_contents)
+        for i in range(0, len(new_contents), 2):
             list_box.itemconfigure(i, background="#f0f0ff")
 
     def get_selected_load_cases(self):
@@ -450,6 +508,14 @@ class ETABS_to_RAM_APP:
         self.log.insert("end", msg)
         self.log["state"] = "disabled"
         self.log.see("end")  # Auto-scroll to the bottom
+
+    def on_close(self):
+        if self.ETABSObject or self.SapModel:
+            exit_ETABS(self.ETABSObject)
+            clean_up_ETABS(self.ETABSObject, self.SapModel)
+        if self.concept:
+            self.concept.shut_down()
+        self.root.destroy()
 
 
 def timestamp(msg: str) -> str:

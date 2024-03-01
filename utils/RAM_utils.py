@@ -37,6 +37,10 @@ def get_all_loading_layers(cad_manager, omitted_layers=["Self-Dead Loading"]):
     ]
 
 
+def shut_down(concept):
+    concept.shut_down()
+
+
 def check_loading_layer_exists(cad_manager, layer_name):
     current_loading_layers = get_all_loading_layers(cad_manager)
     if layer_name in current_loading_layers:
@@ -51,8 +55,6 @@ def add_force_loading_layer(cad_manager, new_layer_name):
 
 
 def add_axial_loads_to_loading_layer(cad_manager, layer_name, x, y, Fz):
-    print(Fz[0])
-    print(type(Fz[0]))
     if check_loading_layer_exists(cad_manager, layer_name):
         force_loading_layer = cad_manager.force_loading_layer(layer_name)
         force_loading_layer.add_point_loads(x, y, Fz=Fz)
