@@ -282,8 +282,8 @@ class ETABS_to_RAM_APP:
         self.writeToLog("Set ETABS units to [lb, in]")
         self.writeToLog("Begining ETABS Analysis. This may take a while.")
         self.writeToLog("Program may appear unresponsive")
-        root.update_idletasks()
-        self.ETABS_results = run_ETABS_analysis(self.SapModel)
+
+        self.ETABS_results = run_ETABS_analysis(self.SapModel, self.cols_df)
         self.writeToLog(f"ETABS analysis complete")
 
         self.ETABS_setup = get_ETABS_results_setup(self.ETABS_results)
@@ -397,9 +397,9 @@ class ETABS_to_RAM_APP:
                 ].to_list(),
             )
             self.writeToLog(
-                f"ETABS LOAD CASE: {user_ETABS_lc_selection} Queried ETABS for max axial force lb"
+                f"ETABS LOAD CASE: {lc} Queried ETABS for max axial force lb"
             )
-            df_key = f"P_max_{user_ETABS_lc_selection}"
+            df_key = f"P_max_{lc}"
             self.cols_df[df_key] = self.cols_df["MyNames"].map(P_max)
 
             out_df = self.cols_df[self.cols_df["StoryName"] == user_level_selection]
@@ -412,7 +412,7 @@ class ETABS_to_RAM_APP:
                 out_df[df_key].to_list(),
             )
             self.writeToLog(
-                f"ETABS LOAD CASE: {user_ETABS_lc_selection} Successfully added loads to RAM loading layer"
+                f"ETABS LOAD CASE: {lc} Successfully added loads to RAM loading layer"
             )
 
             self.model.save_file(self.RAM_model_path)

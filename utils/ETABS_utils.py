@@ -8,6 +8,7 @@ Note: When dealing with ETABS API, ret == 0 indicates a successfull API response
 """
 
 from pathlib import Path
+import math
 import json
 import pandas as pd
 import clr
@@ -174,16 +175,19 @@ def get_all_frame_elements(SapModel):
         return pd.DataFrame(data)
 
 
-def run_ETABS_analysis(SapModel):
+def run_ETABS_analysis(SapModel, frames_df):
     """
-    Run ETABS analysis, (compute intensive)
+    Run ETABS analysis if necessary and return results object
     """
-    try:
+    results = cAnalysisResults(SapModel.Results)
+    # check if analysis is allready ran before running analysis
+    if not find_max_axial(results, frames_df["MyNames"].to_list()):
+        print("Not analyzed yet, commencing analysis")
         Analyze = cAnalyze(SapModel.Analyze)
         ret = Analyze.RunAnalysis()
         return cAnalysisResults(SapModel.Results)
-    except:
-        print("ETABS analysis failed")
+    else:
+        return results
 
 
 def get_ETABS_results_setup(Results):
@@ -257,7 +261,7 @@ def find_max_axial(Results, frame_objs: list) -> dict:
         if ret == 0 and NumberResults != 0:
             P_max[frame] = abs(min(P))
         else:
-            pass
+            return False
             # print(f"Bad Response for frame: {frame}")
     return P_max
 

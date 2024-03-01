@@ -51,6 +51,8 @@ def add_force_loading_layer(cad_manager, new_layer_name):
 
 
 def add_axial_loads_to_loading_layer(cad_manager, layer_name, x, y, Fz):
+    print(Fz[0])
+    print(type(Fz[0]))
     if check_loading_layer_exists(cad_manager, layer_name):
         force_loading_layer = cad_manager.force_loading_layer(layer_name)
         force_loading_layer.add_point_loads(x, y, Fz=Fz)
