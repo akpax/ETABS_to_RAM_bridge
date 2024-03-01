@@ -1,5 +1,6 @@
 import numpy as np
-from icecream import ic
+import os
+import sys
 import pandas as pd
 
 
@@ -56,6 +57,22 @@ def calibrate(src_pt1: list, src_pt2: list, out_pt1: list, out_pt2) -> tuple:
 
 def convert_point_to_new_coord_system(x, y, rotation_matrix, delta_translation):
     return (matrix_rotation(x, y, rotation_matrix) + delta_translation).tolist()
+
+
+def resource_path(relative_path: str) -> str:
+    """Get absolute path to resource, works for dev and for PyInstaller."""
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        # Determine the absolute path to the directory containing the main script.
+        # This assumes that the main script is located in the project root.
+        main_dir = os.path.dirname(os.path.abspath(sys.modules["__main__"].__file__))
+        print(sys.modules["__main__"].__file__)
+        print(main_dir)
+        base_path = main_dir
+
+    return os.path.join(base_path, relative_path)
 
 
 if __name__ == "__main__":

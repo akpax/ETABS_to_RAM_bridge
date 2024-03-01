@@ -1,7 +1,6 @@
 from tkinter import Tk, Button, filedialog, font, StringVar, Listbox, Canvas, Toplevel
 from tkinter import ttk
 import json
-from utils.GUI_utils import resource_path
 from utils.ETABS_utils import *
 from utils.RAM_utils import *
 from utils.misc_utils import *
