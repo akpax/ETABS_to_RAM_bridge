@@ -180,7 +180,3 @@ def validate_and_get_path(validation_func, key, config_path="config.json"):
         path = get_path_from_config(key, config_path)
     return path
     # return path
-
-
-if __name__ == "__main__":
-    validate_and_get_path(validate_ETABS_dll_path, "ETABS .dll")
