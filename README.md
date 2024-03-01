@@ -16,6 +16,7 @@ This folder is typically located at:
 """
 C:\Program Files\Computers and Structures\ETABS 20
 """
+
 [provide image of .dll file]
 
 The program will validate the path and save it for future use in config.json if validation is successful. If unsuccessful, the user will be prompted to provide a different path.
