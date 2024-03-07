@@ -440,14 +440,17 @@ class ETABS_to_RAM_APP:
         self.transfer_loads_button["state"] = "normal"
 
     def transfer_loads(self):
+        # get user inputs
         user_level_selection = self.combo_box_levels.get()
         self.writeToLog(f"User Level Selection: {user_level_selection}")
         user_ETABS_lc_selection = self.get_selected_load_cases()
         self.writeToLog(f"User ETABS Load Case Selection: {user_ETABS_lc_selection}")
         user_RAM_layer_selection = self.load_layers_var.get()
-        self.writeToLog(f" RAM load layer: {user_RAM_layer_selection}")
+        self.writeToLog(f"RAM load layer: {user_RAM_layer_selection}")
 
-        for lc in user_ETABS_lc_selection:
+        df_keys = []
+        # add axial loads to cols df and save keys in df_keys
+        for i,lc in enumerate(user_ETABS_lc_selection):
             change_ETABS_output_case(self.ETABS_setup, lc)
             P_max = find_max_axial(
                 self.ETABS_results,
@@ -458,25 +461,37 @@ class ETABS_to_RAM_APP:
             self.writeToLog(
                 f"ETABS LOAD CASE: {lc} Queried ETABS for max axial force lb"
             )
-            df_key = f"P_max_{lc}"
-            self.cols_df[df_key] = self.cols_df["MyNames"].map(P_max)
+            # add key to df_keys and then map the loads to this key in df
+            df_keys.append(f"P_max_{lc}")
+            self.cols_df[df_keys[i]] = self.cols_df["MyNames"].map(P_max)
+            
 
-            out_df = self.cols_df[self.cols_df["StoryName"] == user_level_selection]
+        # handle case where user selects multiple keys 
+        # add summed loads to df under combined key
+        if len(df_keys)>1:
+            user_ETABS_lc_selection.insert(0,"P_max")
+            combined_key = "_".join(user_ETABS_lc_selection)
+            df_keys.append[combined_key] # add to df_keys since last key is outputed to RAM
+            self.cols_df[combined_key] = self.cols_df[df_keys].sum(axis=1)
+            self.writeToLog(f"Summed load for following keys: {df_keys} and added to internal df as {combined_key}")
+            
 
-            add_axial_loads_to_loading_layer(
-                self.cad_manager,
-                user_RAM_layer_selection,
-                out_df["RAM_X"].to_list(),
-                out_df["RAM_Y"].to_list(),
-                out_df[df_key].to_list(),
-            )
-            self.writeToLog(
-                f"ETABS LOAD CASE: {lc} Successfully added loads to RAM loading layer"
-            )
+            
+        # filter columns_df for specific story and add to RAM layer
+        add_axial_loads_to_loading_layer(
+            self.cad_manager,
+            user_RAM_layer_selection,
+            self.cols_df[self.cols_df["StoryName"] == user_level_selection]["RAM_X"].to_list(),
+            self.cols_df[self.cols_df["StoryName"] == user_level_selection]["RAM_Y"].to_list(),
+            self.cols_df[self.cols_df["StoryName"] == user_level_selection][df_keys[-1]].to_list(),
+        )
+        self.writeToLog(
+            f"ETABS LOAD CASE: {df_keys[-1]} Successfully added loads to RAM loading layer"
+        )
 
-            self.model.save_file(self.RAM_model_path)
-            self.writeToLog("Successfully saved updated RAM Model")
-        # TODO  add logic for removing user available options for ETAS load case
+        self.model.save_file(self.RAM_model_path)
+        self.writeToLog("Successfully saved updated RAM Model")
+
 
     def check_enable_data_button(self, button):
         if self.ETABS_model_path is not None and self.RAM_model_path is not None:
