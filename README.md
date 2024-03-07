@@ -1,4 +1,6 @@
 # ETABS_to_RAM_bridge
+![load_transfer_gif](https://github.com/akpax/ETABs_RAM_bridge/assets/78048703/262decf5-798b-4442-9943-0645f9b7bb3d)
+
 ## Project Summary
 This application is a GUI wrapper between ETABS and RAM Concept. It automates the typically time-consuming task of transferring column forces from ETABS into RAM Concept. It allows the user to specify which ETABS load case, load type, and level and the RAM Concept load layer. Additionally, it provides prompting and validation during API initialization.
 
