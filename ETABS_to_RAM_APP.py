@@ -28,6 +28,15 @@ blue_button_color_code = "#1F51FF"
 white_color_code = "#FFFFFF"
 red_button_color_code = "#D04848"
 
+# set testing state to enable buttons that are disabled in prod
+testing = True
+
+if testing:
+    state="normal"
+else:
+    state="disabled"
+
+
 ETABS_analysis_types_dict = {
     "Linear Static": 1,
     "Nonlinear Static": 2,
@@ -69,7 +78,7 @@ class ETABS_to_RAM_APP:
         f1 = ttk.Frame(self.notebook)
         f2 = ttk.Frame(self.notebook)
         self.notebook.add(f1, text="Model Paths Config")
-        self.notebook.add(f2, text="Load Transfer Hub", state="disabled")
+        self.notebook.add(f2, text="Load Transfer Hub", state=state)
         # self.notebook.tab("Load Transfer Hub", state="normal")
         self.notebook.pack(expand=True, fill="both", padx=10, pady=(10, 0))
 
@@ -241,13 +250,6 @@ class ETABS_to_RAM_APP:
             font=font.nametofont("TkDefaultFont"),
         ).grid(row=2, column=0, sticky="w")
 
-        self.user_defined_load_layer = StringVar()
-        ttk.Entry(self.RAM_frame, textvariable=self.user_defined_load_layer).grid(
-            row=3, column=0
-        )
-        Button(self.RAM_frame, text="Add", command=self.add_load_layer).grid(
-            row=3, column=1
-        )
         ttk.Separator(self.RAM_frame, orient="horizontal").grid(
             row=4, column=0, columnspan=2, sticky="ew"
         )
@@ -479,14 +481,6 @@ class ETABS_to_RAM_APP:
     def check_enable_data_button(self, button):
         if self.ETABS_model_path is not None and self.RAM_model_path is not None:
             button["state"] = "normal"
-
-    def add_load_layer(self):
-        user_entry = self.user_defined_load_layer.get()
-        if user_entry != "":
-            add_force_loading_layer(self.cad_manager, user_entry)
-            self.RAM_load_layers.append(user_entry)
-            self.combo_box_load_layer["values"] = self.RAM_load_layers
-            self.writeToLog(f"Added following loading layer: {user_entry}")
 
     def refresh_list_box(self, list_box, s_var, new_contents):
         s_var.set(new_contents)
