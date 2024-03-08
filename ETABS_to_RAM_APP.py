@@ -28,13 +28,6 @@ blue_button_color_code = "#1F51FF"
 white_color_code = "#FFFFFF"
 red_button_color_code = "#D04848"
 
-# set testing state to enable buttons that are disabled in prod
-testing = True
-
-if testing:
-    state="normal"
-else:
-    state="disabled"
 
 
 ETABS_analysis_types_dict = {
@@ -78,7 +71,7 @@ class ETABS_to_RAM_APP:
         f1 = ttk.Frame(self.notebook)
         f2 = ttk.Frame(self.notebook)
         self.notebook.add(f1, text="Model Paths Config")
-        self.notebook.add(f2, text="Load Transfer Hub", state=state)
+        self.notebook.add(f2, text="Load Transfer Hub", state="disabled")
         # self.notebook.tab("Load Transfer Hub", state="normal")
         self.notebook.pack(expand=True, fill="both", padx=10, pady=(10, 0))
 
