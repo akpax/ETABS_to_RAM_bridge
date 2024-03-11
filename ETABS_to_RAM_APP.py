@@ -464,9 +464,9 @@ class ETABS_to_RAM_APP:
         if len(df_keys)>1:
             user_ETABS_lc_selection.insert(0,"P_max")
             combined_key = "_".join(user_ETABS_lc_selection)
-            df_keys.append[combined_key] # add to df_keys since last key is outputed to RAM
             self.cols_df[combined_key] = self.cols_df[df_keys].sum(axis=1)
-            self.writeToLog(f"Summed load for following keys: {df_keys} and added to internal df as {combined_key}")
+            df_keys.append(combined_key) # add to df_keys since last key is outputed to RAM
+            self.writeToLog(f"Summed load for following keys: {df_keys[:-1]} and added to internal df as {combined_key}")
             
 
             
