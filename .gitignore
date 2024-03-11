@@ -11,3 +11,4 @@ dist
 ETABS_RAM_bridge.exe.spec
 proj_notes.txt
 readme_imgs
+.DS_store
