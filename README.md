@@ -75,7 +75,7 @@ Python folder contents:
 
 ## Using Application
 ### Model Paths Config Tab
-After configuration, the main interface will open up where the user is prompted for model paths to the ETABS file and the RAM Concept model they wish to transfer to. The application will add loads to layers so if you intend to update loads, the existing loads should be removed from the layer before the transfer. Note: the RAM Concept model provided will be saved over by the updated version with transferred loads. It is recommended to copy the models before using the application.
+After configuration, the main interface will open up where the user is prompted for model paths to the ETABS file and the RAM Concept model they wish to transfer to. The application will not clear existing loads  in RAM concept before adding new ones; therefore, if you intend to update loads, the existing loads should be removed from the RAM layer before the transfer. Note: the RAM Concept model provided will be saved over by the updated version with transferred loads. It is recommended to copy the models before using the application.
 ![tab1](https://github.com/akpax/ETABs_RAM_bridge/assets/78048703/1d850b17-86df-413b-af31-6120fd647888)
 
 Clicking the "Access ETABS and RAM Concept Data" button will open up the ETABS model, extract data, and create the necessary ETABS and RAM objects required.
@@ -87,9 +87,8 @@ After data is accessed, the Load Transfer Hub tab is unlocked and this is where 
 
 ![successfull transfer](https://github.com/akpax/ETABs_RAM_bridge/assets/78048703/315fcdcf-59ea-41f7-9935-3e63c6070ba8)
 
-The user must specify all ETABS options. By default, the load analysis type is linear static. It can be changed, and the load cases will update accordingly; however, transfer with different load analysis types has not been thoroughly tested. Please submit a GitHub issue if it fails.
+The user must specify all ETABS options. By default, the load analysis type is linear static. It can be changed, and the load cases will update accordingly; however, transfer with different load analysis types has not been thoroughly tested. Please submit a GitHub issue if it fails. Also, the user can select multiple ETABS load cases and the loads from individual load cases will be summed together at each location before being added as one point load.   
 
-The user must choose a load case for RAM Concept or they can add a new layer. Note: when adding a new layer, it will create tables with the information but no load plans for visualization. It is recommended to create a new load layer in the RAM Concept GUI in order to visualize the transferred loads.
 
 
 ## Calibration
@@ -114,7 +113,7 @@ Also, it is recommended to spot check RAM Concept layers post-transfer to confir
 
 
 # Common Pitfalls
-*License not available
+* License not available
 * ETABS .exe file not correctly configured.
 
   
