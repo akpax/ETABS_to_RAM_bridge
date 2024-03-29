@@ -16,8 +16,8 @@ import json
 from pathlib import Path
 from PIL import ImageTk, Image
 from datetime import datetime
-from utils.ETABS_utils import *
-from utils.RAM_utils import *
+# from utils.ETABS_utils import *
+# from utils.RAM_utils import *
 from utils.misc_utils import *
 
 
@@ -94,8 +94,16 @@ class ETABS_to_RAM_APP:
         scrollbar = ttk.Scrollbar(
             logging_frame, orient="vertical", command=self.log.yview
         )
-        scrollbar.grid(row=0, column=1, sticky="ns", pady=(10, 0))
+        scrollbar.grid(row=0, column=1, sticky="ns", pady=(10, 10))
         self.log["yscrollcommand"] = scrollbar.set
+
+        # add credits
+        ttk.Label(
+            logging_frame,
+             text="Developed by Austin Paxton. Contact via LinkedIn: https://www.linkedin.com/in/austin-paxton-98b496165/",
+             font=small_italic_font
+             ).grid(row=1, column=0)
+
 
         # Configure the logging frame's column to expand, filling the space
         logging_frame.grid_columnconfigure(0, weight=1)
