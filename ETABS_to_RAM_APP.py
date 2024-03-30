@@ -16,8 +16,8 @@ import json
 from pathlib import Path
 from PIL import ImageTk, Image
 from datetime import datetime
-# from utils.ETABS_utils import *
-# from utils.RAM_utils import *
+from utils.ETABS_utils import *
+from utils.RAM_utils import *
 from utils.misc_utils import *
 
 
