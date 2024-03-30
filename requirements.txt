@@ -3,3 +3,4 @@ pythonnet
 requests
 pytest
 pillow
+pyinstaller
