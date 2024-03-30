@@ -8,9 +8,10 @@ tkinter_example.py
 test_models
 build
 dist
-ETABS_RAM_bridge.exe.specq
-proj_notes.txt
+ETABS_RAM_bridge.exe.spec
 readme_imgs
 .DS_store
 *.pyc
 ETABS_exploration
+run_exe.bat
+ETABS_to_RAM_app.spec
