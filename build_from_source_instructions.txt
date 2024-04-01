@@ -1,11 +1,17 @@
 This contains instructions to create a new .exe file using Pyinstaller:
-1. clone or fork project onto local machine
-2. create virtual environment in terminal
+1. Clone project onto local machine
+    " cd path/to/desired/folder"
+    "git clone https://github.com/akpax/ETABs_RAM_bridge.git"
+
+2. Create virtual environment in terminal
     "python3 -m venv venv"
+
 3. Install rerquired packages
     "pip install -r requirements.txt"
+
 4. Create new .exe with pyinstaller. Use the command below and update paths. 
-"""
-pyinstaller --onefile ETABS_to_RAM_app.py --add-data "path\to\images\dir\images\;.\images" --paths "path\to\venv\site-packages;path\to\root\dir" --collect-submodules utils
-"""
+    """
+    pyinstaller --onefile ETABS_to_RAM_app.py --add-data "path\to\images\dir\images\;.\images" --paths "path\to\venv\site-packages;path\to\root\dir" --collect-submodules utils
+    """
+
 5. New .exe is located in /dist directory
