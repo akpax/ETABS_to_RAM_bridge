@@ -7,11 +7,11 @@ This application is a GUI wrapper between ETABS and RAM Concept. It automates th
 
 ## Using the Software
 ### Configuration
-Behind the scenes, the application connects to ETABS and RAM Concept via API. In order to accomplish this, the user is prompted for certain paths which are validated and saved to JSON for future use.
+Behind the scenes, the application connects to ETABS and RAM Concept via their respective APIs. In order to accomplish this, the user is prompted for certain paths which are validated and saved to JSON for future use.
 
 
 ### ETABS Configuration
-The application was developed using ETABS 20; therefore, to reduce potential errors, I highly recommend using this version of ETABS when running the application. When the user starts the application, they will be prompted for the ETABSv1.dll file.
+The application was developed and tested using ETABS 20; therefore, to reduce potential errors, I highly recommend using this version of ETABS when running the application. When the user starts the application, they will be prompted for the ETABSv1.dll file.
 
 ![dll file -selection](https://github.com/akpax/ETABs_RAM_bridge/assets/78048703/a268c0c8-a272-4ba7-b9c0-f4cbb9c2ab07)
 
@@ -30,10 +30,10 @@ Additionally, for setup, the user must provide the path to the ETABS application
 
 
 ### RAM Concept Configuration
-After ETABS is configured, the user will be asked to specify the Python directory of RAM Concept. This Python directory must be installed by the user. Per RAM Concept Documentation, this can be done as follows:
+After ETABS is configured, the user will be asked to specify the Python directory of RAM Concept. This Python directory must be installed by the user. 
 
 
-#### Installing RAM Concept API
+#### Installing RAM Concept Python Package
 The API is included with the RAM Concept install, but it is not installed into the Python system on the machine. Per [RAM Concept Documention](file:///C:/Program%20Files/Bentley/Engineering/RAM%20Concept%20CONNECT%20Edition/RAM%20Concept%20CONNECT%20Edition%20V8/python/docs/installing_the_api.html#installing-the-api), we can install it as follows:
 
 * Open a command prompt
@@ -70,12 +70,13 @@ After installing, you can now select the Python folder when prompted. This folde
 ![python folder](https://github.com/akpax/ETABs_RAM_bridge/assets/78048703/19ad76f2-4d4e-4148-a4c9-b94a3618cd52)
 
 Python folder contents:
+
 ![RAM_dir folders (contents)](https://github.com/akpax/ETABs_RAM_bridge/assets/78048703/b3347f6a-74c5-4c45-bc62-3526d7af4d2d)
 
 
 ## Using Application
 ### Model Paths Config Tab
-After configuration, the main interface will open up where the user is prompted for model paths to the ETABS file and the RAM Concept model they wish to transfer to. The application will not clear existing loads  in RAM concept before adding new ones; therefore, if you intend to update loads, the existing loads should be removed from the RAM layer before the transfer. Note: the RAM Concept model provided will be saved over by the updated version with transferred loads. It is recommended to copy the models before using the application.
+After configuration, the main interface will open up where the user is prompted for model paths to the ETABS file and the RAM Concept model they wish to transfer to. The application will not clear existing loads in RAM concept before adding new ones; therefore, if you intend to update loads, the existing loads should be removed from the RAM layer before the transfer. Note: the RAM Concept model provided will be saved over by the updated version with transferred loads. It is recommended to copy the model files before using the application.
 ![tab1](https://github.com/akpax/ETABs_RAM_bridge/assets/78048703/1d850b17-86df-413b-af31-6120fd647888)
 
 Clicking the "Access ETABS and RAM Concept Data" button will open up the ETABS model, extract data, and create the necessary ETABS and RAM objects required.
@@ -85,7 +86,8 @@ Note: Since running ETABS analysis is computationally expensive, the application
 ## Load Transfer Hub Tab
 After data is accessed, the Load Transfer Hub tab is unlocked and this is where the control center of the application is.
 
-![successfull transfer](https://github.com/akpax/ETABs_RAM_bridge/assets/78048703/315fcdcf-59ea-41f7-9935-3e63c6070ba8)
+![MicrosoftTeams-image](https://github.com/akpax/ETABs_RAM_bridge/assets/78048703/1337cb3d-b23e-4ff8-8ccc-5eb76e259ea9)
+
 
 The user must specify all ETABS options. By default, the load analysis type is linear static. It can be changed, and the load cases will update accordingly; however, transfer with different load analysis types has not been thoroughly tested. Please submit a GitHub issue if it fails. Also, the user can select multiple ETABS load cases and the loads from individual load cases will be summed together at each location before being added as one point load.   
 
