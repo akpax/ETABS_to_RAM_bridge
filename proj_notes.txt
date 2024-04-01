@@ -1,2 +1,0 @@
-PyInstaller Command to create new .exe (windows): 
-pyinstaller --onefile ETABS_to_RAM_app.py --add-data "path\to\images\dir\images\;.\images" --paths "path\to\venv\site-packages;path\to\root\dir" --collect-submodules utils
