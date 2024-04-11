@@ -1,3 +1,14 @@
+"""
+This module performs functions that perform validation on user provided paths to .dll files (ETABS)
+and well as python dirctory of RAM Cconcept. 
+
+These validation functions are used inside the ETABS_utils and RAM_utils modules before importing 
+ETABS and RAM specfiic modules. 
+
+If paths are missing or not validated a window will appear prompting the user to provide paths.
+
+"""
+
 import clr
 import json
 from pathlib import Path
@@ -179,4 +190,3 @@ def validate_and_get_path(validation_func, key, config_path="config.json"):
         root.mainloop()
         path = get_path_from_config(key, config_path)
     return path
-    # return path

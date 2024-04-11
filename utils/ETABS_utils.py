@@ -1,5 +1,5 @@
 """
-This model contains wrapper functions for using the ETABS API.  
+This module contains wrapper functions for using the ETABS API.  
 The ETABS API is accessed via ETABS.dll which the user is prompted for before
 ETABSv1 is imported.
 

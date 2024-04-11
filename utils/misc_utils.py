@@ -1,10 +1,15 @@
+"""
+This module contains miscellaneous utility functions including
+calibration helper functions and a resource path helper function
+"""
+
 import numpy as np
 import os
 import sys
 import pandas as pd
 
 
-def find_rotation_matrix(src_vec, dest_vec):
+def find_rotation_matrix(src_vec: list, dest_vec: list) -> list:
     """
     Find the rotation matrix that aligns src_vec to dest_vec in 2D.
     :param src_vec: A 2d "source" vector
@@ -27,13 +32,13 @@ def find_rotation_matrix(src_vec, dest_vec):
     return rotation_matrix
 
 
-def matrix_rotation(x, y, rotation_matrix):
+def matrix_rotation(x: str, y: str, rotation_matrix: list) -> list:
     input_vec = np.array([[x], [y]])
     rotated_vec = rotation_matrix @ input_vec
     return [num for num in rotated_vec.flat]
 
 
-def delta_vec(x1: float, y1: float, x2: float, y2: float) -> list:
+def delta_vec(x1: float, y1: float, x2: float, y2: float) -> tuple:
     """
     Finds resulting delta vector between 2 points
     """
@@ -55,7 +60,9 @@ def calibrate(src_pt1: list, src_pt2: list, out_pt1: list, out_pt2) -> tuple:
     return rotation_matrix, delta_translation
 
 
-def convert_point_to_new_coord_system(x, y, rotation_matrix, delta_translation):
+def convert_point_to_new_coord_system(
+    x: str, y: str, rotation_matrix: list, delta_translation: list
+) -> list:
     return (matrix_rotation(x, y, rotation_matrix) + delta_translation).tolist()
 
 

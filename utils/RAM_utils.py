@@ -1,3 +1,9 @@
+"""
+This module contains wrapper functions for the RAM Concept API. 
+Validation of the user-provided RAM Concept python directory is 
+performed before adding it to $PATH and importing necessary libraries. 
+"""
+
 import sys  # add RAM concept API installation to path so it can be found (it is in same location as application not in venv)
 import requests
 
@@ -60,7 +66,7 @@ def add_axial_loads_to_loading_layer(cad_manager, layer_name, x, y, Fz):
         force_loading_layer.add_point_loads(x, y, Fz=Fz)
 
 
-def calibrate_ETABS_to_RAM(ETABs_coord: list, RAM_coord: list):
+def calibrate_ETABS_to_RAM(ETABs_coord: list, RAM_coord: list) -> list:
     """
     this function takes the same point in ETABs coordinates and in RAM coordinates and creates
     delta values to adjust coordinates of ETABs loads for proper location into RAM concept

@@ -1,3 +1,9 @@
+"""
+This is the main module of the application. It contains the tkinter GUI.
+
+
+"""
+
 from tkinter import (
     Tk,
     Button,
@@ -27,7 +33,6 @@ arrow_image_path = resource_path(R"images\arrow_medium.png")
 blue_button_color_code = "#1F51FF"
 white_color_code = "#FFFFFF"
 red_button_color_code = "#D04848"
-
 
 
 ETABS_analysis_types_dict = {
@@ -100,10 +105,9 @@ class ETABS_to_RAM_APP:
         # add credits
         ttk.Label(
             logging_frame,
-             text="Developed by Austin Paxton. Contact via LinkedIn: https://www.linkedin.com/in/austin-paxton-98b496165/",
-             font=small_italic_font
-             ).grid(row=1, column=0)
-
+            text="Developed by Austin Paxton. Contact via LinkedIn: https://www.linkedin.com/in/austin-paxton-98b496165/",
+            font=small_italic_font,
+        ).grid(row=1, column=0)
 
         # Configure the logging frame's column to expand, filling the space
         logging_frame.grid_columnconfigure(0, weight=1)
@@ -451,7 +455,7 @@ class ETABS_to_RAM_APP:
 
         df_keys = []
         # add axial loads to cols df and save keys in df_keys
-        for i,lc in enumerate(user_ETABS_lc_selection):
+        for i, lc in enumerate(user_ETABS_lc_selection):
             change_ETABS_output_case(self.ETABS_setup, lc)
             P_max = find_max_axial(
                 self.ETABS_results,
@@ -465,26 +469,33 @@ class ETABS_to_RAM_APP:
             # add key to df_keys and then map the loads to this key in df
             df_keys.append(f"P_max_{lc}")
             self.cols_df[df_keys[i]] = self.cols_df["MyNames"].map(P_max)
-            
 
-        # handle case where user selects multiple keys 
+        # handle case where user selects multiple keys
         # add summed loads to df under combined key
-        if len(df_keys)>1:
-            user_ETABS_lc_selection.insert(0,"P_max")
+        if len(df_keys) > 1:
+            user_ETABS_lc_selection.insert(0, "P_max")
             combined_key = "_".join(user_ETABS_lc_selection)
             self.cols_df[combined_key] = self.cols_df[df_keys].sum(axis=1)
-            df_keys.append(combined_key) # add to df_keys since last key is outputed to RAM
-            self.writeToLog(f"Summed load for following keys: {df_keys[:-1]} and added to internal df as {combined_key}")
-            
+            df_keys.append(
+                combined_key
+            )  # add to df_keys since last key is outputed to RAM
+            self.writeToLog(
+                f"Summed load for following keys: {df_keys[:-1]} and added to internal df as {combined_key}"
+            )
 
-            
         # filter columns_df for specific story and add to RAM layer
         add_axial_loads_to_loading_layer(
             self.cad_manager,
             user_RAM_layer_selection,
-            self.cols_df[self.cols_df["StoryName"] == user_level_selection]["RAM_X"].to_list(),
-            self.cols_df[self.cols_df["StoryName"] == user_level_selection]["RAM_Y"].to_list(),
-            self.cols_df[self.cols_df["StoryName"] == user_level_selection][df_keys[-1]].to_list(),
+            self.cols_df[self.cols_df["StoryName"] == user_level_selection][
+                "RAM_X"
+            ].to_list(),
+            self.cols_df[self.cols_df["StoryName"] == user_level_selection][
+                "RAM_Y"
+            ].to_list(),
+            self.cols_df[self.cols_df["StoryName"] == user_level_selection][
+                df_keys[-1]
+            ].to_list(),
         )
         self.writeToLog(
             f"ETABS LOAD CASE: {df_keys[-1]} Successfully added loads to RAM loading layer"
@@ -492,7 +503,6 @@ class ETABS_to_RAM_APP:
 
         self.model.save_file(self.RAM_model_path)
         self.writeToLog("Successfully saved updated RAM Model")
-
 
     def check_enable_data_button(self, button):
         if self.ETABS_model_path is not None and self.RAM_model_path is not None:
